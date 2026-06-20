@@ -55,6 +55,9 @@ app.get('/api/questions/all', async (req, res) => {
 
 // إعداد البورت السحابي
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
+// أضف هذا المسار ليعرف المتصفح ماذا يظهر عند فتح الرابط الرئيسي
+app.get('/', (req, res) => {
+  res.send('Server is running and alive! API is ready.');
+});app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running smoothly on port ${PORT}`);
 });
