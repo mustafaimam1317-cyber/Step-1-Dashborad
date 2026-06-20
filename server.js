@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // الاتصال بقاعدة البيانات باستخدام المتغير السري (Environment Variable)
-// في Render، تأكد من إضافة MONGO_URI في الـ Environment settings
+// يفضل دائماً الاعتماد على process.env.MONGO_URI وتجنب كتابة الرابط صراحة في الكود
 const mongoURI = process.env.MONGO_URI || "mongodb+srv://mustafa:Mustafa172004@cluster0.mxzojfq.mongodb.net/usmle_tracker?retryWrites=true&w=majority";
 
 mongoose.connect(mongoURI)
@@ -24,13 +24,18 @@ mongoose.connect(mongoURI)
 // --- Mongoose Model ---
 const QuestionSchema = new mongoose.Schema({
   questionText: { type: String, required: true },
-  category: { type: String, default: 'Step 1' }, // أصبح الآن افتراضياً Step 1
+  category: { type: String, default: 'Step 1' },
   status: { type: String, enum: ['Correct', 'Incorrect', 'Flagged', 'Unattempted'], default: 'Unattempted' },
   createdAt: { type: Date, default: Date.now }
 });
 const Question = mongoose.model('Question', QuestionSchema);
 
 // --- Routes ---
+// المسار الرئيسي للتأكد من عمل السيرفر
+app.get('/', (req, res) => {
+  res.send('Server is running and alive! API is ready.');
+});
+
 app.post('/api/questions/add', async (req, res) => {
   try {
     const newQuestion = new Question(req.body);
@@ -43,7 +48,6 @@ app.post('/api/questions/add', async (req, res) => {
 
 app.get('/api/questions/all', async (req, res) => {
   try {
-    // إمكانية الفلترة حسب التصنيف
     const { category } = req.query;
     const filter = category ? { category } : {};
     const questions = await Question.find(filter);
@@ -53,11 +57,8 @@ app.get('/api/questions/all', async (req, res) => {
   }
 });
 
-// إعداد البورت السحابي
+// إعداد البورت السحابي والاستماع
 const PORT = process.env.PORT || 5000;
-// أضف هذا المسار ليعرف المتصفح ماذا يظهر عند فتح الرابط الرئيسي
-app.get('/', (req, res) => {
-  res.send('Server is running and alive! API is ready.');
-});app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running smoothly on port ${PORT}`);
 });
